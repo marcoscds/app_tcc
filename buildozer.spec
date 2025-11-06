@@ -1,5 +1,4 @@
 [app]
-
 title = Caracterizador de Antenas
 package.name = myapp
 package.domain = org.test
@@ -34,7 +33,6 @@ android.api = 33
 android.minapi = 26
 android.ndk_api = 26
 android.ndk = 25b
-
 
 p4a.extra_env_vars = CFLAGS=-std=c++17
 android.allow_backup = True

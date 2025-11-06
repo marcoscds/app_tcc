@@ -11,12 +11,14 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      # 1️⃣ Pega o código do repo
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Cache do Buildozer (opcional, mas altamente recomendado)
-      # Isso acelera builds subsequentes, pois o NDK/SDK já estarão baixados.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10
+
       - name: Cache Buildozer
         uses: actions/cache@v3
         with:
@@ -27,31 +29,50 @@ jobs:
           restore-keys: |
             buildozer-
 
-      # 3️⃣ Build e Limpeza do Cache (AÇÃO CENTRAL)
-      # Esta ação instala o Python 3.10, Buildozer, Cython e dependências do sistema.
+      - name: Install system dependencies
+        run: |
+          sudo apt update -y
+          sudo apt install -y zip unzip openjdk-17-jdk python3-pip libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> $GITHUB_ENV
+
+      - name: Install Python packages
+        run: |
+          pip install --upgrade pip setuptools wheel Cython buildozer==1.5.0
+
       - name: Run Buildozer with Clean and Debug
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
-          python-version: 3.10
-          # 🚨 Comando de Limpeza (clean) e Build (debug) 🚨
-          command: buildozer android clean; buildozer android debug
+          command: buildozer android clean && buildozer android debug
 
-      # 4️⃣ Upload do Log de Build (Útil para debugar)
-      # Usa a saída (output) da ação Buildozer
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: ${{ steps.buildozer.outputs.log_file }} # O nome do log é fornecido pela ação
-          
-      # 5️⃣ Upload do APK gerado
-      # Usa o nome do arquivo de saída (filename) fornecido pela ação
+          path: ${{ steps.buildozer.outputs.log_file }}
+
+      - name: Upload .buildozer folder (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-folder
+          path: .buildozer
+
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: ${{ steps.buildozer.outputs.filename }} # O nome do arquivo é fornecido pela ação
+          path: ${{ steps.buildozer.outputs.filename }}
           if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.buildozer.outputs.filename }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -7,7 +7,11 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
 
-requirements = python3,kivy,pyjnius,pillow
+
+android.shared_libraries = libc++_shared.so, libpython3.so
+android.p4a_ext_modules = pythonforandroid.recipes.crystax.CrystaxExtensionModules
+
+requirements = python3,kivy,pyjnius,pillow,matplotlib,numpy
 p4a.fork = kivy
 p4a.branch = master
 p4a.python_version = 3.10
@@ -29,7 +33,7 @@ android.permissions = \
     android.permission.READ_EXTERNAL_STORAGE,\
     android.permission.WRITE_EXTERNAL_STORAGE
 
-android.api = 30
+android.api = 33
 android.minapi = 26
 android.ndk_api = 26
 android.ndk = 25b

@@ -21,7 +21,6 @@ orientation = portrait
 fullscreen = 0
 
 android.permissions = BLUETOOTH,BLUETOOTH_ADMIN,BLUETOOTH_SCAN,BLUETOOTH_CONNECT,ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
-
 android.api = 33
 android.minapi = 24
 android.ndk_api = 23

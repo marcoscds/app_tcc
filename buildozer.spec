@@ -7,15 +7,16 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
 
-
 android.shared_libraries = libc++_shared.so, libpython3.so
 android.p4a_ext_modules = pythonforandroid.recipes.crystax.CrystaxExtensionModules
 
-requirements = python3,kivy,pyjnius,pillow,matplotlib==3.4.3,numpy
+requirements = python3,kivy,pyjnius,pillow,numpy==1.21.6,matplotlib==3.4.3
 p4a.fork = kivy
 p4a.branch = master
 p4a.python_version = 3.10
 bootstrap = sdl2
+p4a.local_recipes = ./recipes
+p4a.branch = develop
 
 icon.filename = icone.png
 android.archs = arm64-v8a, armeabi-v7a

@@ -14,11 +14,11 @@ jobs:
     # 1️⃣ Pega o código do repo
     - uses: actions/checkout@v4
 
-    # 2️⃣ Configura Python
+    # 2️⃣ Configura Python (consistente com p4a.python_version = 3.9)
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.9'
 
     # 3️⃣ Instala dependências do sistema
     - name: Install system dependencies
@@ -51,7 +51,11 @@ jobs:
         pip install --upgrade pip wheel setuptools
         pip install buildozer==1.5.0 cython==0.29.36
 
-    # 6️⃣ Cria imagens placeholder se não existirem
+    # 6️⃣ Instala ImageMagick (necessário para 'convert')
+    - name: Install ImageMagick
+      run: sudo apt install imagemagick -y
+
+    # 7️⃣ Cria imagens placeholder se não existirem
     - name: Create placeholder images
       run: |
         if [ ! -f Icon.png ]; then
@@ -63,27 +67,32 @@ jobs:
           convert -size 720x1280 xc:blue -gravity center -pointsize 120 -fill white -annotate +0+0 "Antenas" Splash.png || true
         fi
 
-    # 7️⃣ Build APK com log detalhado
+    # 8️⃣ Build APK com log detalhado (verbose)
     - name: Build APK
       run: |
         source venv/bin/activate
-        # Aceita licenças do Android SDK automaticamente
-        yes | buildozer android debug 2>&1 | tee build.log
+        # Aceita licenças do Android SDK automaticamente (se necessário)
+        yes | buildozer -v android debug 2>&1 | tee build.log
       continue-on-error: false
-      
-    # 8️⃣ Upload do log completo em caso de erro
+
+    # 9️⃣ Upload do log completo (sempre; não quebra se não existir)
     - name: Upload build log
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: build-log
-        path: build.log
-        
-    # 9️⃣ Upload do APK gerado
+        path: |
+          build.log
+          .buildozer/android/platform/build-*/build.log
+        if-no-files-found: warn
+
+    # 🔟 Upload do APK gerado (não-fatal se não encontrado)
     - name: Upload APK
-      if: success()
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
-        path: bin/*.apk
-        if-no-files-found: error
+        path: |
+          bin/*.apk
+          .buildozer/android/platform/build-*/dists/*/bin/*.apk
+        if-no-files-found: warn

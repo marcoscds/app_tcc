@@ -7,7 +7,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
 
-requirements = python3,kivy,pyjnius,numpy,matplotlib,pillow
+requirements = python3,kivy,pyjnius,pillow
 p4a.fork = kivy
 p4a.branch = master
 p4a.python_version = 3.10

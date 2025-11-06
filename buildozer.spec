@@ -13,7 +13,7 @@ p4a.branch = master
 p4a.python_version = 3.10
 bootstrap = sdl2
 
-icon.filename = icone.png
+icon.filename = iconechat.png
 android.archs = arm64-v8a, armeabi-v7a
 
 orientation = portrait

@@ -7,40 +7,27 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
 
-android.shared_libraries = libc++_shared.so, libpython3.so
-android.p4a_ext_modules = pythonforandroid.recipes.crystax.CrystaxExtensionModules
+requirements = python3==3.9,kivy==2.3.0,numpy==1.21.6,matplotlib==3.4.3,pillow,pyjnius,requests
 
-requirements = python3,kivy,pyjnius,pillow,numpy==1.21.6,matplotlib==3.4.3
 p4a.fork = kivy
-p4a.branch = master
-p4a.python_version = 3.10
-bootstrap = sdl2
+p4a.python_version = 3.9
 p4a.local_recipes = ./recipes
 p4a.branch = develop
+p4a.bootstrap = sdl2
 
 icon.filename = icone.png
-android.archs = arm64-v8a, armeabi-v7a
 
 orientation = portrait
 fullscreen = 0
 
-android.permissions = \
-    android.permission.BLUETOOTH,\
-    android.permission.BLUETOOTH_ADMIN,\
-    android.permission.BLUETOOTH_SCAN,\
-    android.permission.BLUETOOTH_CONNECT,\
-    android.permission.ACCESS_COARSE_LOCATION,\
-    android.permission.ACCESS_FINE_LOCATION,\
-    android.permission.READ_EXTERNAL_STORAGE,\
-    android.permission.WRITE_EXTERNAL_STORAGE
+android.permissions = BLUETOOTH,BLUETOOTH_ADMIN,BLUETOOTH_SCAN,BLUETOOTH_CONNECT,ACCESS_COARSE_LOCATION,ACCESS_FINE_LOCATION,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 
 android.api = 33
-android.minapi = 26
-android.ndk_api = 26
+android.minapi = 24
+android.ndk_api = 23
 android.ndk = 25b
-android.targetsdk = 33 
-android.minsdk = 21
 
+android.archs = arm64-v8a,armeabi-v7a
 p4a.extra_env_vars = CFLAGS=-std=c++17
 android.allow_backup = True
 

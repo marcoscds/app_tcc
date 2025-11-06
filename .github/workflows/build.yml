@@ -11,79 +11,47 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    # 1️⃣ Pega o código do repo
-    - uses: actions/checkout@v4
+      # 1️⃣ Pega o código do repo
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    # 2️⃣ Configura Python
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      # 2️⃣ Cache do Buildozer (opcional, mas altamente recomendado)
+      # Isso acelera builds subsequentes, pois o NDK/SDK já estarão baixados.
+      - name: Cache Buildozer
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-
 
-    # 3️⃣ Instala dependências do sistema
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          python3-venv git zip unzip openjdk-17-jdk \
-          zlib1g-dev libncurses5-dev libncurses6 libstdc++6 \
-          libffi-dev libssl-dev libtinfo6 \
-          autoconf automake libtool pkg-config m4 build-essential \
-          libltdl-dev ccache
-        sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5 || true
+      # 3️⃣ Build e Limpeza do Cache (AÇÃO CENTRAL)
+      # Esta ação instala o Python 3.10, Buildozer, Cython e dependências do sistema.
+      - name: Run Buildozer with Clean and Debug
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          python-version: 3.10
+          # 🚨 Comando de Limpeza (clean) e Build (debug) 🚨
+          command: buildozer android clean; buildozer android debug
 
-    # 4️⃣ Cache do Buildozer para acelerar builds
-    - name: Cache Buildozer
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.buildozer
-          .buildozer
-        key: buildozer-${{ hashFiles('buildozer.spec') }}
-        restore-keys: |
-          buildozer-
-
-    # 5️⃣ Cria venv e instala Buildozer + Cython
-    - name: Setup Buildozer
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip wheel setuptools
-        pip install buildozer==1.5.0 cython==0.29.36
-
-    # 6️⃣ Cria imagens placeholder se não existirem
-    - name: Create placeholder images
-      run: |
-        if [ ! -f Icon.png ]; then
-          echo "Creating Icon.png placeholder..."
-          convert -size 512x512 xc:blue -gravity center -pointsize 72 -fill white -annotate +0+0 "A" Icon.png || true
-        fi
-        if [ ! -f Splash.png ]; then
-          echo "Creating Splash.png placeholder..."
-          convert -size 720x1280 xc:blue -gravity center -pointsize 120 -fill white -annotate +0+0 "Antenas" Splash.png || true
-        fi
-
-    # 7️⃣ Build APK com log detalhado
-    - name: Build APK
-      run: |
-        source venv/bin/activate
-        # Aceita licenças do Android SDK automaticamente
-        yes | buildozer android debug 2>&1 | tee build.log
-      continue-on-error: false
-      
-    # 8️⃣ Upload do log completo em caso de erro
-    - name: Upload build log
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-log
-        path: build.log
-        
-    # 9️⃣ Upload do APK gerado
-    - name: Upload APK
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug-apk
-        path: bin/*.apk
-        if-no-files-found: error
+      # 4️⃣ Upload do Log de Build (Útil para debugar)
+      # Usa a saída (output) da ação Buildozer
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ${{ steps.buildozer.outputs.log_file }} # O nome do log é fornecido pela ação
+          
+      # 5️⃣ Upload do APK gerado
+      # Usa o nome do arquivo de saída (filename) fornecido pela ação
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: ${{ steps.buildozer.outputs.filename }} # O nome do arquivo é fornecido pela ação
+          if-no-files-found: error

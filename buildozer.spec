@@ -29,8 +29,8 @@ android.permissions = \
     android.permission.READ_EXTERNAL_STORAGE,\
     android.permission.WRITE_EXTERNAL_STORAGE
 
-android.api = 33
-android.minapi = 26
+android.api = 30
+android.minapi = 24
 android.ndk_api = 26
 android.ndk = 25b
 android.targetsdk = 33 

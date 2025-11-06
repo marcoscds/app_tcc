@@ -11,7 +11,7 @@ version = 0.1
 android.shared_libraries = libc++_shared.so, libpython3.so
 android.p4a_ext_modules = pythonforandroid.recipes.crystax.CrystaxExtensionModules
 
-requirements = python3,kivy,pyjnius,pillow,matplotlib,numpy
+requirements = python3,kivy,pyjnius,pillow,matplotlib==3.4.3,numpy
 p4a.fork = kivy
 p4a.branch = master
 p4a.python_version = 3.10

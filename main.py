@@ -145,9 +145,6 @@ class BluetoothScreen(Screen):
             # Ativa o botão de avançar (deve ser agendado para rodar na thread principal)
             Clock.schedule_once(lambda dt: setattr(self.manager.get_screen('motor_control').ids.control_button, 'disabled', False), 0)
 
-            # INICIA A THREAD DE LEITURA (NOVA THREAD PARA RECEBIMENTO DE DADOS)
-            read_thread = threading.Thread(target=self.read_bluetooth_data, daemon=True)
-            read_thread.start()
 
         except Exception as e:
             # Erro de conexão (dispositivo não está pronto, fora do alcance, etc.)
